@@ -1,5 +1,3 @@
-
-
 // Immediately-invoked function to start the process.
 (function initTransform() {
   let nativeSupported = 'XSLTProcessor' in window && window.XSLTProcessor.toString().includes('native code');

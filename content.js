@@ -86,9 +86,9 @@ function setHidden(hidden) {
   if (hidden) {
     if (!overlay) {
       const xmlns = 'http://www.w3.org/1999/xhtml';
-      const spinner = document.createElementNS(xmlns, 'div');
-      spinner.id = 'xslt-extension-spinner';
-      spinner.textContent = 'XSLT Extension is processing this page, please wait...';
+      overlay = document.createElementNS(xmlns, 'div');
+      overlay.id = 'xslt-extension-spinner';
+      overlay.textContent = 'XSLT Extension is processing this page, please wait...';
       const style = document.createElementNS(xmlns, 'style');
       style.textContent = `
         #xslt-extension-spinner {
@@ -100,6 +100,7 @@ function setHidden(hidden) {
           border-radius: 15px;
           z-index: 1;
           font-family: sans-serif;
+          visibility: visible;
         }
         #xslt-extension-spinner::after {
           content: "";
@@ -116,8 +117,8 @@ function setHidden(hidden) {
             opacity: 0;
           }
         }`;
-      spinner.appendChild(style);
-      document.body.appendChild(spinner);
+      overlay.appendChild(style);
+      document.body.appendChild(overlay);
     }
     overlay.style.display = 'block';
     document.body.style.visibility = 'hidden';

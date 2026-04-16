@@ -1,4 +1,4 @@
-let xslt_ext_hideRequestId = 0;
+
 
 // Immediately-invoked function to start the process.
 (function initTransform() {
@@ -22,7 +22,7 @@ let xslt_ext_hideRequestId = 0;
 
   // Step 1: Immediately hide the document to prevent FOUC.
   console.log('Starting XSLT polyfill transformation...');
-  setHidden(true);
+  window.xsltPolyfillSpinner = 'XSLT Extension is processing this page, please wait...';
 
   // Step 2: Asynchronously fetch and process the document.
   fetchAndTransform().catch((error) => {
@@ -34,14 +34,14 @@ let xslt_ext_hideRequestId = 0;
     } else {
       console.error('Error during XSLT transformation:', error);
     }
-    setHidden(false); // Error - stop. Make things visible again.
+    window.xsltPolyfillSpinner = null; // Error - stop. Make things visible again.
   });
 })();
 
 async function fetchAndTransform() {
   const response = await fetch(document.location.href);
   if (!response.ok) {
-    setHidden(false); // Error - stop. Make things visible again.
+    window.xsltPolyfillSpinner = null; // Error - stop. Make things visible again.
     console.warn(`XSLT Polyfill: Failed to fetch document: ${response.statusText}`);
     return;
   }
@@ -62,71 +62,9 @@ async function fetchAndTransform() {
     }
     console.log('XSLT Polyfill has transformed this document.');
   }
-  setHidden(false);
+  window.xsltPolyfillSpinner = null;
 }
 
-function setHidden(hidden) {
-  // This function needs to be robust since it's called very early at document_start.
-  if (!document.body) {
-    // If the body doesn't exist yet, use animation frames.
-    // If we're hiding, schedule it. If we're un-hiding, cancel the scheduled hide.
-    if (hidden) {
-      xslt_ext_hideRequestId = requestAnimationFrame(() => setHidden(true));
-    } else {
-      cancelAnimationFrame(xslt_ext_hideRequestId);
-    }
-    return;
-  }
-
-  // Once the body exists, we can act on it directly.
-  // Also cancel any pending hide request just in case.
-  cancelAnimationFrame(xslt_ext_hideRequestId);
-
-  let overlay = document.getElementById('xslt-extension-spinner');
-  if (hidden) {
-    if (!overlay) {
-      const xmlns = 'http://www.w3.org/1999/xhtml';
-      overlay = document.createElementNS(xmlns, 'div');
-      overlay.id = 'xslt-extension-spinner';
-      overlay.textContent = 'XSLT Extension is processing this page, please wait...';
-      const style = document.createElementNS(xmlns, 'style');
-      style.textContent = `
-        #xslt-extension-spinner {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          padding: 16px;
-          border-radius: 15px;
-          z-index: 1;
-          font-family: sans-serif;
-          visibility: visible;
-        }
-        #xslt-extension-spinner::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          background: #3b82f6;
-          z-index: -1;
-          animation: ripple 1.5s infinite ease-out;
-        }
-        @keyframes ripple {
-          to {
-            transform: scale(1.15, 1.4);
-            opacity: 0;
-          }
-        }`;
-      overlay.appendChild(style);
-      document.body.appendChild(overlay);
-    }
-    overlay.style.display = 'block';
-    document.body.style.visibility = 'hidden';
-  } else {
-    overlay?.remove();
-    document.body.style.removeProperty('visibility');
-  }
-}
 // Global settings for the polyfill script.
 window.xsltPolyfillQuiet = true;
 window.xsltDontAutoloadXmlDocs = true;

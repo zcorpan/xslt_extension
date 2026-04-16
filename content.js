@@ -21,6 +21,7 @@ let xslt_ext_hideRequestId = 0;
   }
 
   // Step 1: Immediately hide the document to prevent FOUC.
+  console.log('Starting XSLT polyfill transformation...');
   setHidden(true);
 
   // Step 2: Asynchronously fetch and process the document.
@@ -85,67 +86,44 @@ function setHidden(hidden) {
   if (hidden) {
     if (!overlay) {
       const xmlns = 'http://www.w3.org/1999/xhtml';
-      overlay = document.createElementNS(xmlns, 'div');
-      overlay.id = 'xslt-extension-spinner';
-      overlay.style.cssText = `
-        position:fixed;
-        top:0;
-        left:0;
-        right:0;
-        bottom:0;
-        background:#fff;
-        z-index:2147483647;
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        font-family:system-ui,-apple-system,sans-serif;
-        color:#333;
-        visibility:visible;`;
+      const spinner = document.createElementNS(xmlns, 'div');
+      spinner.id = 'xslt-extension-spinner';
+      spinner.textContent = 'XSLT Extension is processing this page, please wait...';
       const style = document.createElementNS(xmlns, 'style');
       style.textContent = `
-        @keyframes xslt-ripple {
-          0% { top: 36px; left: 36px; width: 0; height: 0; opacity: 0; }
-          4.9% { top: 36px; left: 36px; width: 0; height: 0; opacity: 0; }
-          5% { top: 36px; left: 36px; width: 0; height: 0; opacity: 1; }
-          100% { top: 0px; left: 0px; width: 72px; height: 72px; opacity: 0; }
+        #xslt-extension-spinner {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          padding: 16px;
+          border-radius: 15px;
+          z-index: 1;
+          font-family: sans-serif;
         }
-        .xslt-ripple-container {
-          display: inline-block;
-          position: relative;
-          width: 80px;
-          height: 80px;
-          margin-bottom: 20px;
-        }
-        .xslt-ripple-container div {
+        #xslt-extension-spinner::after {
+          content: "";
           position: absolute;
-          border: 4px solid #3498db;
-          opacity: 1;
-          border-radius: 50%;
-          animation: xslt-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+          inset: 0;
+          border-radius: inherit;
+          background: #3b82f6;
+          z-index: -1;
+          animation: ripple 1.5s infinite ease-out;
         }
-        .xslt-ripple-container div:nth-child(2) {
-          animation-delay: -0.5s;
+        @keyframes ripple {
+          to {
+            transform: scale(1.15, 1.4);
+            opacity: 0;
+          }
         }`;
-      overlay.appendChild(style);
-
-      const rippleContainer = document.createElementNS(xmlns, 'div');
-      rippleContainer.className = 'xslt-ripple-container';
-      rippleContainer.appendChild(document.createElementNS(xmlns, 'div'));
-      rippleContainer.appendChild(document.createElementNS(xmlns, 'div'));
-      overlay.appendChild(rippleContainer);
-
-      const textDiv = document.createElementNS(xmlns, 'div');
-      textDiv.textContent = 'XSLT Extension is processing this page, please wait...';
-      overlay.appendChild(textDiv);
-
-      document.body.appendChild(overlay);
+      spinner.appendChild(style);
+      document.body.appendChild(spinner);
     }
-    overlay.style.display = 'flex';
+    overlay.style.display = 'block';
     document.body.style.visibility = 'hidden';
   } else {
-    if (overlay) overlay.remove();
-    document.body.style.visibility = '';
+    overlay?.remove();
+    document.body.style.removeProperty('visibility');
   }
 }
 // Global settings for the polyfill script.

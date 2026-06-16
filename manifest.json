@@ -19,7 +19,7 @@
   ],
   "browser_specific_settings": {
     "gecko": {
-      "id": "xslt_extension@mozilla.com",
+      "id": "@xslt-polyfill.zcorpan",
       "strict_min_version": "150.0"
     }
   }

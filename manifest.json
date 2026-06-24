@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "XSLT Polyfill",
-  "version": "1.0.17",
+  "version": "1.0.17.1",
   "description": "Applies an XSLT polyfill to all XML documents.",
   "content_scripts": [
     {
@@ -19,6 +19,13 @@
   ],
   "browser_specific_settings": {
     "gecko": {
+      "id": "@xslt-polyfill.zcorpan",
+      "strict_min_version": "150.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    },
+    "gecko_android": {
       "id": "@xslt-polyfill.zcorpan",
       "strict_min_version": "150.0",
       "data_collection_permissions": {

@@ -75,4 +75,14 @@ Either upload the zip at https://addons.mozilla.org/en-US/developers/addon/xslt-
 WEB_EXT_API_KEY=... WEB_EXT_API_SECRET=... web-ext sign --channel=listed
 ```
 
+On zcorpan's machine the keys are in the macOS Keychain (shared with zcorpan/github-merge-helper-ext, since AMO API keys are per account):
+
+```sh
+WEB_EXT_API_KEY="$(security find-generic-password -s github-merge-helper-amo -a jwt-issuer -w)" \
+WEB_EXT_API_SECRET="$(security find-generic-password -s github-merge-helper-amo -a jwt-secret -w)" \
+web-ext sign --channel=listed
+```
+
+This takes a few minutes (validation, then approval) and downloads the signed `.xpi` to `web-ext-artifacts/`.
+
 `xslt-polyfill.min.js` is minified, so AMO may ask for source code. Point reviewers at the mfreed7/xslt_polyfill commit it was built from (see step 2) and its README's build instructions.

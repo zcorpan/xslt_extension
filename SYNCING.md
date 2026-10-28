@@ -4,7 +4,7 @@ This repo is a Firefox fork of [mfreed7/xslt_extension](https://github.com/mfree
 
 - `manifest.json`: the `browser_specific_settings` block (`gecko` and `gecko_android`: add-on ID `@xslt-polyfill.zcorpan`, `strict_min_version`, `data_collection_permissions`).
 - `README.md`: Firefox/AMO wording and links.
-- `BUILD.md`, `SYNCING.md`, `.gitignore` (`web-ext-artifacts/`).
+- `BUILD.md`, `SYNCING.md`, `.gitignore` (`web-ext-artifacts/`, `.amo-upload-uuid`).
 
 Everything else (`content.js`, `xslt-polyfill.min.js`, the `version` in `manifest.json`) should match upstream.
 

@@ -11,3 +11,7 @@ Find it on addons.mozilla.org, here:
 If you find issues with this extension, feel free to [file a bug](https://github.com/zcorpan/xslt_extension/issues). Note that if the problem is with the polyfill (i.e. a site doesn't render correctly) you should probably file a bug on the [polyfill repo](https://github.com/mfreed7/xslt_polyfill/issues) directly.
 
 This repo is forked from https://github.com/mfreed7/xslt_extension . If the issue also applies to the Chrome extension, please file an issue there. Thanks!
+
+## Building
+
+The extension's content script, `xslt-extension.js`, is generated from `content.js` and `xslt-polyfill.min.js`. After changing either, run `node scripts/bundle.mjs`.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compares the extension's active path with native XSLT in Firefox. See SYNCING.md.
+"""Compares the extension's active path with native XSLT in Firefox. See SECURITY-REVIEW.md.
 
 Runs the pages in test/active/ twice through geckodriver: with dom.xslt.enabled=false
 and the extension installed, then with native XSLT and no extension. Serves test/ on

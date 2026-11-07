@@ -55,7 +55,7 @@ That shows `xslt-extension.js` contains exactly those two files. That `xslt-poly
 
 ## 3. Security review
 
-Follow [SECURITY-REVIEW.md](SECURITY-REVIEW.md): the threat model, what to look for in `git diff OLD NEW -- src scripts Makefile` of the polyfill and in changes to `content.js` and `manifest.json`, and the tests. Run `test/active-firefox.py` and `test/security.html` with the built zip. Fork-specific notes:
+Follow [SECURITY-REVIEW.md](SECURITY-REVIEW.md): the threat model, what to look for in `git diff OLD NEW -- src scripts Makefile` of the polyfill and in changes to `content.js` and `manifest.json`, and the tests. Run `test/active.py firefox` (and `chrome`, if Canary is available) and `test/security.html` with the built zip. Fork-specific notes:
 
 - Anything that makes the polyfill run where it didn't before has to be undone locally (e.g. in `content.js`'s `xsltPolyfillOptions`, then regenerate the bundle) and released with a fourth-component version.
 - Private reporting wasn't enabled on mfreed7/xslt_polyfill in October 2026; email the maintainer and ask for it rather than opening a public issue that describes an exploit.

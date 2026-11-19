@@ -12,8 +12,9 @@ and localhost:8002 (another origin).
 Firefox: dom.xslt.enabled toggles native XSLT, through geckodriver.
 Environment: GECKODRIVER (default: geckodriver on PATH), FIREFOX (default: Firefox Nightly).
 
-Chrome: the XSLT feature flag toggles native XSLT (Canary still has it); the extension is loaded
-with CDP Extensions.loadUnpacked through Playwright (pip install playwright).
+Chrome: the XSLT feature flag toggles native XSLT (it stays available after XSLT is disabled by
+default); the extension is loaded with CDP Extensions.loadUnpacked through Playwright
+(pip install playwright).
 Environment: CHROME (default: Chrome Canary).
 
 Both: EXT_DIR (default: the repo root) is the extension directory to load.

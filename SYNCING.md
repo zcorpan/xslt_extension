@@ -4,9 +4,9 @@ This repo is a Firefox fork of [mfreed7/xslt_extension](https://github.com/mfree
 
 - `manifest.json`: the `browser_specific_settings` block (`gecko` and `gecko_android`: add-on ID `@xslt-polyfill.zcorpan`, `strict_min_version`, `data_collection_permissions`).
 - `README.md`: Firefox/AMO wording and links.
-- `BUILD.md`, `SYNCING.md`, `.gitignore`, `web-ext-config.mjs`.
+- `BUILD.md`, `SYNCING.md`, `.gitignore`, `web-ext-config.mjs`, `scripts/source-zip.py`.
 
-Everything else (`content.js`, the `xslt_polyfill` submodule pin, `xslt-extension.js`, `SECURITY-REVIEW.md`, `test/`) should match upstream. The `version` in `manifest.json` matches upstream, except for Firefox-only releases between upstream versions, which add a fourth component (`1.0.25.1`) so the next upstream version (`1.0.26`) still sorts higher.
+Everything else (`content.js`, the `xslt_polyfill` submodule pin, `xslt-extension.js`, `SECURITY.md`, `SECURITY-REVIEW.md`, `test/`, `scripts/bundle.mjs`) should match upstream. The `version` in `manifest.json` matches upstream, except for Firefox-only releases between upstream versions, which add a fourth component (`1.0.25.1`) so the next upstream version (`1.0.26`) still sorts higher.
 
 Don't publish until steps 2 and 3 pass. If the new upstream version fails them, ship the previous submodule pin, or fix it locally (e.g. an option in `content.js`'s `xsltPolyfillOptions`, then `node scripts/bundle.mjs`) and release a fourth-component version.
 
@@ -58,7 +58,7 @@ That shows `xslt-extension.js` contains exactly those two files. That `xslt-poly
 Follow [SECURITY-REVIEW.md](SECURITY-REVIEW.md): the threat model, what to look for in `git diff OLD NEW -- src scripts Makefile` of the polyfill and in changes to `content.js` and `manifest.json`, and the tests. Run `test/active.py firefox` (and `chrome`, if Canary is available) and `test/security.html` with the built zip. Fork-specific notes:
 
 - Anything that makes the polyfill run where it didn't before has to be undone locally (e.g. in `content.js`'s `xsltPolyfillOptions`, then regenerate the bundle) and released with a fourth-component version.
-- Private reporting wasn't enabled on mfreed7/xslt_polyfill in October 2026; email the maintainer and ask for it rather than opening a public issue that describes an exploit.
+- Report security bugs privately through GitHub's private vulnerability reporting (enabled on mfreed7/xslt_polyfill and mfreed7/xslt_extension, see SECURITY.md), not in a public issue that describes an exploit.
 - Known test results: `test/security.html` B1 fails (accepted risk, see SECURITY-REVIEW.md). A new failure, or B1 passing, is worth noting in the release notes.
 
 ## 4. Build, lint, and test
@@ -82,10 +82,10 @@ git push origin main
 
 Listing: https://addons.mozilla.org/en-US/firefox/addon/xslt-polyfill/ (add-on ID `@xslt-polyfill.zcorpan`). AMO rejects a version number it has seen before, so `version` must be higher than the last submitted one.
 
-Either upload the zip at https://addons.mozilla.org/en-US/developers/addon/xslt-polyfill/versions/submit/, or use `web-ext sign` with API credentials from https://addons.mozilla.org/en-US/developers/addon/api/key/:
+Either upload the zip at https://addons.mozilla.org/en-US/developers/addon/xslt-polyfill/versions/submit/, or use `web-ext sign` (with the source package from the next section) and API credentials from https://addons.mozilla.org/en-US/developers/addon/api/key/:
 
 ```sh
-WEB_EXT_API_KEY=... WEB_EXT_API_SECRET=... web-ext sign --channel=listed
+WEB_EXT_API_KEY=... WEB_EXT_API_SECRET=... web-ext sign --channel=listed --upload-source-code ../web-ext-artifacts/xslt_polyfill-source-X.Y.Z.zip
 ```
 
 On zcorpan's machine the keys are in the macOS Keychain (shared with zcorpan/github-merge-helper-ext, since AMO API keys are per account):
@@ -93,9 +93,22 @@ On zcorpan's machine the keys are in the macOS Keychain (shared with zcorpan/git
 ```sh
 WEB_EXT_API_KEY="$(security find-generic-password -s github-merge-helper-amo -a jwt-issuer -w)" \
 WEB_EXT_API_SECRET="$(security find-generic-password -s github-merge-helper-amo -a jwt-secret -w)" \
-web-ext sign --channel=listed
+web-ext sign --channel=listed --upload-source-code ../web-ext-artifacts/xslt_polyfill-source-X.Y.Z.zip
 ```
 
 This takes a few minutes (validation, then approval) and downloads the signed `.xpi` to `web-ext-artifacts/`.
 
-`xslt-extension.js` contains the minified polyfill, so AMO may ask for source code. Point reviewers at the mfreed7/xslt_polyfill commit the submodule pins (build instructions in its README) and `scripts/bundle.mjs`.
+### Source code
+
+AMO requires the source when the package has minified, bundled or generated code, and reviewers rebuild it and compare with the submission ([source code submission](https://extensionworkshop.com/documentation/publish/source-code-submission/), [policies](https://extensionworkshop.com/documentation/publish/add-on-policies/)). `xslt-extension.js` is generated (see BUILD.md), so upload the source with every version. The package needs the build instructions and every non-public source, and tools must be open source and runnable locally (max 200 MB).
+
+`git archive` skips submodules, so create the package with the script, which adds the pinned `xslt_polyfill`, libxml2 and libxslt:
+
+```sh
+git submodule update --init --recursive
+python3 scripts/source-zip.py ../web-ext-artifacts/xslt_polyfill-source-X.Y.Z.zip
+```
+
+The commands above pass it with `--upload-source-code`; or attach it at "Source code" in the version's page on AMO. In the reviewer notes, say that `BUILD.md` has the steps, that `xslt-extension.js` is `content.js` plus the polyfill's committed `xslt-polyfill.min.js` (step 2), and which `mfreed7/xslt_polyfill` commit is pinned.
+
+Known gaps: the polyfill repo has no `package-lock.json` and doesn't pin the emscripten version, so a full rebuild of `xslt-polyfill.min.js` may not be byte-identical. Earlier versions were approved with this setup; ask mfreed7 for a lockfile and the emscripten version, and add the version to BUILD.md.
